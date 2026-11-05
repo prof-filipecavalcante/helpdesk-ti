@@ -87,6 +87,7 @@ O vídeo deve mostrar, nesta ordem:
    - abrir um chamado com equipamento mostra um erro claro, sem travar o sistema.
 
    Depois, suba o serviço de novo com `docker compose start inventario`.
+
 7. **O que é novo em relação ao monólito:** explique o que mudou e o que ficou melhor ou mais difícil (por exemplo: cada serviço pode ser publicado sozinho, mas agora existe a rede no meio).
 8. **Bônus (se fez):** os eventos chegando ao serviço de Notificações e os testes rodando.
 

@@ -32,8 +32,12 @@ async function carregar() {
   $("erro").textContent = "";
   eu = await req("GET", "/auth/eu");
   $("quem").textContent = eu.nome + " (" + eu.perfil + ")";
+  // Cada parte da tela carrega separada: se um serviço cair, o resto continua aparecendo
+  const avisosDeFalha = [];
+  const tentar = (caminho, padrao) => req("GET", caminho).catch((e) => { avisosDeFalha.push(e.message); return padrao; });
   const [lista, ativos, chamados, painel, avisos] = await Promise.all([
-    req("GET", "/usuarios"), req("GET", "/ativos"), req("GET", "/chamados"), req("GET", "/chamados/painel"), req("GET", "/notificacoes"),
+    tentar("/usuarios", []), tentar("/ativos", []), tentar("/chamados", []),
+    tentar("/chamados/painel", { total: 0, por_status: {}, atrasados: 0 }), tentar("/notificacoes", []),
   ]);
   usuarios = lista;
   const ps = painel.por_status;
@@ -49,6 +53,7 @@ async function carregar() {
     <td><div class="acoes">${acoes(c, tecnicos)}</div></td></tr>`).join("") || `<tr><td colspan="7"><small>Nenhum chamado.</small></td></tr>`;
   $("avisos").innerHTML = avisos.slice().reverse().slice(0, 6).map((a) =>
     `<div class="aviso"><b>${esc(a.tipo)}</b><br>${esc(a.mensagem)}<small>${esc(fmt(a.criada_em))}</small></div>`).join("") || "<small>Nenhuma notificação.</small>";
+  $("erro").textContent = [...new Set(avisosDeFalha)].join(" ");
   $("ativo").innerHTML = `<option value="">Nenhum</option>` + ativos.map((a) => `<option value="${esc(a.id)}">${esc(a.patrimonio)} · ${esc(a.descricao)}</option>`).join("");
 }
 
